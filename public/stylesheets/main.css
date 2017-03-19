@@ -1,0 +1,26 @@
+#key {
+	float:right;
+	width:60%;
+	margin-top:5px;
+}
+#crypt {
+	margin-top: 20px;
+}
+#cipher {
+	width:60%;
+	float:right;
+}
+#lang {
+	width:40%;
+	float:right;
+	margin-top:-5px;
+}
+#select {
+	float:right;
+}
+button{
+	margin-top: 5px;
+}
+input{
+	width: 50px;
+}
