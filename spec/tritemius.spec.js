@@ -124,7 +124,7 @@ describe('Tritemium tests', function () {
 
     });
 
-    describe('message \"Hello\" with passphrase \"simba\"', function () {
+    describe('message "Hello" with passphrase "simba"', function () {
         let data = {
             passphrase: 'simba',
             alphabet
