@@ -1,10 +1,10 @@
 'use strict';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import axios from 'axios';
 import FileReaderInput from 'react-file-reader-input';
 import fileDownload from'react-file-download';
+import Q from 'q';
 
 
 const symbols = "?`~!@#$%^&*()_-=+/'\"\\;.:,0123456789 ";
@@ -28,15 +28,75 @@ const App = React.createClass({
     },
 
     onKeyChange() {
-        if (!!this.refs.key.value.match(/^(-|)\d{1,4}t^2(\+|-)\d{1,4}t(\+|-)\d{1,4}$/)) {
-            console.log('it is acceptable')
-        } else if (!!this.refs.key.value.match(/^(|-)\d{1,4}t(\+|-)\d{1,4}$/)) {
-            console.log('it is acceptable')
-        } else if (!!this.refs.key.value.match(/^(|-)\d{1,4}t$/)) {
-            console.log('it is acceptable')
-        } else {
-            console.log('it is acceptable')
+        let key;
+        switch(this.state.cryptType) {
+            case 'tritemius': {
+                let keyStr = this.refs.key.value;
+                if (!!keyStr.match(/^(-|)\d{1,4}t\^2(\+|-)\d{1,4}t(\+|-)\d{1,4}$/)) {
+                    console.log('kvadr');
+                    let koefs = this.findTkoefsIndexes(keyStr);
+                    let a = keyStr.slice(0, koefs[0]);
+                    console.log(`a = ${a}`);
+                    let b = keyStr.slice(koefs[0] + 3, koefs[1]);
+                    console.log(`b = ${b}`);
+                    let c = keyStr.slice(koefs[1] + 1);
+                    console.log(`c = ${c}`);
+                    key = {
+                        a,
+                        b,
+                        c
+                    }
+                } else if (!!keyStr.match(/^(-|)\d{1,4}t\^2(\+|-)\d{1,4}$/)) {
+                    console.log('kvadr');
+                    let koefs = this.findTkoefsIndexes(keyStr);
+                    let a = keyStr.slice(0, koefs[0]);
+                    console.log(`a = ${a}`);
+                    console.log(`b = 0`);
+                    let c = keyStr.slice(koefs[0] + 3);
+                    console.log(`c = ${c}`);
+                    key = {
+                        a,
+                        b: 0,
+                        c
+                    }
+                } else if (!!keyStr.match(/^(|-)\d{1,4}t(\+|-)\d{1,4}$/)) {
+                    console.log('linear');
+                    let koefs = this.findTkoefsIndexes(keyStr);
+                    let a = keyStr.slice(0, koefs[0]);
+                    console.log(`a = ${a}`);
+                    let b = keyStr.slice(koefs[0] + 1);
+                    console.log(`b = ${b}`);
+                    key = {
+                        a,
+                        b
+                    }
+                } else if (!!keyStr.match(/^(|-)\d{1,4}t$/)) {
+                    console.log('linear');
+                    let a = keyStr.slice(0, -1);
+                    console.log(`a = ${a}`);
+                    key = {
+                        a
+                    }
+                } else {
+                    console.log('text');
+                    key = {
+                        passphrase: keyStr
+                    }
+                }
+                break;
+            }
         }
+        return key
+    },
+
+    findTkoefsIndexes(keyStr) {
+        let result = [];
+        keyStr.split('').forEach((char, index) => {
+            if (char === 't') {
+                result.push(index);
+            }
+        });
+        return result;
     },
 
     onTextAreaChange(event) {
@@ -62,36 +122,38 @@ const App = React.createClass({
     },
 
     encryptRequest() {
-        this.onKeyChange();
-        console.log(this.state.alphabet);
-        axios.post('/api/' + this.state.cryptType + '/encrypt',
-            {
-                message: this.state.message,
-                passphrase: this.refs.key.value,
-                alphabet: this.state.lang,
-                isIntelliSearch: this.state.intelliSearch
-            })
+        this.setState({
+            key: this.onKeyChange()
+        }, () => {
+            axios.post('/api/' + this.state.cryptType + '/encrypt',
+                {
+                    message: this.state.message,
+                    key: this.state.key,
+                    alphabet: this.state.lang,
+                    isIntelliSearch: this.state.intelliSearch
+                })
             .then((response) => {
                 return response.data;
             })
             .then((data) => {
                 this.setState({message: data.message});
             });
+        });
     },
 
     decryptRequest() {
-        this.onKeyChange();
-        axios.post('/api/' + this.state.cryptType + '/decrypt',
-            {
-                message: this.state.message,
-                passphrase: this.refs.key.value,
-                alphabet: this.state.lang,
-                isIntelliSearch: this.state.intelliSearch
-            })
-            .then((response) => {
+        this.setState({
+                key: this.onKeyChange()
+            }, () => {
+            axios.post('/api/' + this.state.cryptType + '/decrypt',
+                {
+                    message: this.state.message,
+                    key: this.state.key,
+                    alphabet: this.state.lang,
+                    isIntelliSearch: this.state.intelliSearch
+                }).then((response) => {
                 return response.data.message;
-            })
-            .then((message) => {
+            }).then((message) => {
                 if (message.constructor === Array) {
                     for (let i = 0; i < message.length; i++) {
                         let index = message[i].indexOf(' (key =');
@@ -106,6 +168,7 @@ const App = React.createClass({
                     this.setState({message: message});
                 }
             });
+        });
     },
 
     onEncryptButton() {
