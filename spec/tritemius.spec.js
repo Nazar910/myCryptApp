@@ -4,7 +4,7 @@ const tritemium = require('../lib/tritemius');
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz?`~!@#$%^&*()_-=+/\'"\\;.:,0123456789 ';
 
-describe('Tritemium', () => {
+describe('Tritemius', () => {
 
     describe('key = 2t', () => {
         let data = {
@@ -87,7 +87,7 @@ describe('Tritemium', () => {
         });
     });
 
-    describe('key = 2t^2+3t+1', () => {
+    describe('key = 2t^2+5t+3', () => {
         let data = {
             key: {
                 a: 2,

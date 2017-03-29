@@ -1,10 +1,10 @@
 'use strict';
-const tritemius = require('../lib/tritemius');
+const gamma = require('../lib/gamma');
 
 function encrypt(req, res, next) {
     const data = req.body;
 
-    const message = tritemius.encrypt(data);
+    const message = gamma.encrypt(data);
 
     res.json({
         message
@@ -15,7 +15,7 @@ function encrypt(req, res, next) {
 function decrypt(req, res, next) {
     const data = req.body;
 
-    const message = tritemius.decrypt(data);
+    const message = gamma.decrypt(data);
 
     res.json({
         message

@@ -1,10 +1,10 @@
+'use strict';
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 
 const app = express();
-
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -18,4 +18,4 @@ app.use(bodyParser.urlencoded({
 
 app.use('/', require('./routes'));
 
-app.listen(9000, ()=> console.info('Server is started...'));
+app.listen(9000, () => console.info('Server is started on port 9000...'));
