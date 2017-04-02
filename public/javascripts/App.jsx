@@ -262,6 +262,7 @@ const App = React.createClass({
                 return;
             }
             let s = e.target.result;
+            console.log('text is = ' + s);
             this.onMessageChange(s);
         });
     },
