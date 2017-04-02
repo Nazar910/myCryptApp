@@ -7,7 +7,7 @@ import fileDownload from'react-file-download';
 import Q from 'q';
 
 
-const symbols = "?`~!@#$%^&*()_-=+/'\"\\;.:,0123456789 ";
+const symbols = "?`~!@#$%^&*()_-=+/'\"\\;.:,0123456789 \n\t\r";
 const languages = {
     en: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + symbols,
     ru: "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя" + symbols,
@@ -31,9 +31,17 @@ const App = React.createClass({
     onKeyChange() {
         this.setState({ error: '' });
         let key;
+        let keyStr = this.refs.key.value;
+
         switch(this.state.cryptType) {
             case 'tritemius': {
-                let keyStr = this.refs.key.value;
+                for (let i = 0; i < keyStr.length; i++) {
+                    if (!this.state.lang.includes(keyStr[i])
+                        && !symbols.includes(keyStr[i])) {
+                        return;
+                    }
+                }
+
                 if (!!keyStr.match(/^(-|)\d{1,4}t\^2(\+|-)\d{1,4}t(\+|-)\d{1,4}$/)) {
                     console.log('kvadr');
                     let koefs = this.findTkoefsIndexes(keyStr);
@@ -88,8 +96,6 @@ const App = React.createClass({
                 break;
             }
             case 'gamma': {
-                let keyStr = this.refs.key.value;
-
                 if (!!keyStr.match(/^x0=(|-)\d{1,4},a=(|-)\d{1,4},c=(|-)\d{1,4}$/)) {
                     let ia = keyStr.indexOf('a');
                     let ic = keyStr.indexOf('c');
@@ -124,6 +130,7 @@ const App = React.createClass({
     onMessageChange(str) {
         let flag = true;
         let symbol = '';
+
         for (let i = 0; i < str.length; i++) {
             if (!this.state.lang.includes(str[i])
                 && !symbols.includes(str[i])) {
@@ -135,7 +142,7 @@ const App = React.createClass({
         if (flag) {
             this.setState({message: str});
         } else {
-            alert('Some symbols doesn\'t match to the selected language ' + symbol)
+            alert('Some symbols doesn\'t match to the selected language "' + symbol + '"')
         }
     },
 
