@@ -9,6 +9,7 @@ function encrypt(req, res, next) {
     res.json({
         message
     });
+
     next();
 }
 

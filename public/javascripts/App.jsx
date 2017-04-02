@@ -23,11 +23,13 @@ const App = React.createClass({
             cryptType: "tritemius",
             lang: languages["en"],
             message_array: [],
-            intelliSearch: false
+            intelliSearch: false,
+            error: ''
         }
     },
 
     onKeyChange() {
+        this.setState({ error: '' });
         let key;
         switch(this.state.cryptType) {
             case 'tritemius': {
@@ -77,12 +79,28 @@ const App = React.createClass({
                     key = {
                         a
                     }
-                } else {
+                } else if (keyStr) {
                     console.log('text');
                     key = {
                         passphrase: keyStr
                     }
                 }
+                break;
+            }
+            case 'gamma': {
+                let keyStr = this.refs.key.value;
+
+                if (!!keyStr.match(/^x0=(|-)\d{1,4},a=(|-)\d{1,4},c=(|-)\d{1,4}$/)) {
+                    let ia = keyStr.indexOf('a');
+                    let ic = keyStr.indexOf('c');
+
+                    key = {
+                        x0: +keyStr.slice(3, ia - 1),
+                        a: +keyStr.slice(ia + 2, ic - 1),
+                        c: +keyStr.slice(ic + 2, keyStr.length)
+                    };
+                }
+
                 break;
             }
         }
@@ -136,7 +154,12 @@ const App = React.createClass({
                 return response.data;
             })
             .then((data) => {
-                this.setState({message: data.message});
+                let message = data.message;
+                let state = message.error
+                    ? { error: message.error }
+                    : { message: message };
+
+                this.setState(state);
             });
         });
     },
@@ -165,7 +188,11 @@ const App = React.createClass({
                     }
                     this.setState({message_array: message});
                 } else {
-                    this.setState({message: message});
+                    let state = message.error
+                        ? { error: message.error }
+                        : { message: message };
+
+                    this.setState(state);
                 }
             });
         });
@@ -240,6 +267,7 @@ const App = React.createClass({
         return (
             <div>
                 <div className="container">
+                    {this.state.error}
                     <div className="header clearfix">
                         <nav>
                             <ul className="nav nav-pills pull-right">
@@ -280,7 +308,7 @@ const App = React.createClass({
                             <br/><br/>
                             <select className="form-control" id="cipher" onChange={this.onCryptTypeChange}>
                                 <option>Tritemius</option>
-                                <option>Caesar</option>
+                                <option>Gamma</option>
                             </select>
                             <br/><br/>
                             <select className="form-control" id="lang" onChange={this.onLangChange}>

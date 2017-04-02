@@ -134,4 +134,47 @@ describe('Tritemius', () => {
             expect(result).to.equal('Hello');
         });
     });
+
+    describe('key = undefined', () => {
+        let data = {
+            alphabet
+        };
+        it('should return error="Something wrong with your key or passphrase"', () => {
+            data.message = 'Hello';
+            const result = tritemium.encrypt(data);
+            expect(result).to.deep.equal({
+                error: 'Something wrong with your key or passphrase'
+            });
+        });
+    });
+
+    describe('alphabet=undefined', () => {
+        let data = {
+            key: {
+                passphrase: 'simba'
+            }
+        };
+        it('should return error="Please provide alphabet in order to encrypt your key"', () => {
+            data.message = 'Hello';
+            const result = tritemium.encrypt(data);
+            expect(result).to.deep.equal({
+                error: 'Please provide alphabet in order to encrypt your key'
+            });
+        });
+    });
+
+    describe('message=undefined', () => {
+        let data = {
+            key: {
+                passphrase: 'simba'
+            },
+            alphabet
+        };
+        it('should return error="Please verify your message"', () => {
+            const result = tritemium.encrypt(data);
+            expect(result).to.deep.equal({
+                error: 'Please verify your message'
+            });
+        });
+    });
 });
